@@ -6,13 +6,12 @@ class Game
     @board = board
     @current_player = Player.new('Player 1')
     @other_player = Player.new('Player 2')
+    load if load_prompt
     start_game
   end
 
   def start_game
-    if load_prompt
-      load
-    elsif computer_prompt
+    if computer_prompt
       get_player(@current_player)
       @other_player = Computer.new
       assign_players
@@ -101,34 +100,39 @@ class Game
     puts "Enter a name for your saved file:"
     filename = gets.chomp
     saved_game = YAML.dump(self)
-    Dir.mkdir("../saved_games") unless Dir.exists?("../saved_games")
-    File.open("../saved_games/#{filename}.txt", "w") { |file| file.write saved_game }
+    Dir.mkdir("./saved_games") unless Dir.exists?("./saved_games")
+    File.open("./saved_games/#{filename}.txt", "w") { |file| file.write saved_game }
     puts "Game saved. Goodbye!"
   end
 
   def load
-    if  Dir.exists?("../saved_games") == false || Dir.empty?("../saved_games")
-      puts "There are no saved games available.\nA new game will be started instead."
-    else
-      puts "Here are the saved game files:"
-      files = show_saved_games
-      puts "Please type a number to load that file:"
-      num = get_file_num(files.length)
-      saved_game = File.open("../saved_games/#{files[num]}", "r")
-      loaded_game = YAML.load(saved_game)
-      loaded_game.play
-    end
+    puts "Here are the saved game files:"
+    files = show_saved_games
+    puts "Please type a number to load that file:"
+    num = get_file_num(files.length)
+    saved_game = File.open("./saved_games/#{files[num]}", "r")
+    loaded_game = YAML.load(saved_game)
+    loaded_game.play
+  end
+
+  def files_exist?
+    Dir.exists?("./saved_games") && Dir.empty?("./saved_games") == false
   end
 
   def load_prompt
     puts "Would you like to load a saved game?"
-    puts "Type Y for yes, N for No"
+    puts "Type Y for Yes, N for No"
     user_input = ""
     until user_input.match(/^[yn]$/)
       user_input = gets.chomp.downcase
     end
-    return true if user_input == "y"
-    false
+    if user_input == "y"
+      return true if files_exist?
+      puts "There are no saved games available.\nA new game will be started instead."
+      puts
+    else
+      false
+    end
   end
 
   def get_file_num(length)
@@ -140,7 +144,7 @@ class Game
   end
 
   def show_saved_games
-    files = Dir.glob("*.txt", base: "../saved_games")
+    files = Dir.glob("*.txt", base: "./saved_games")
     files.each_with_index do |file, index|
       puts "#{index + 1}. #{file}"
     end
