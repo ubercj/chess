@@ -6,6 +6,7 @@ class Game
     @board = board
     @current_player = Player.new('Player 1')
     @other_player = Player.new('Player 2')
+    help_info
     load if load_prompt
     start_game
   end
@@ -119,8 +120,16 @@ class Game
     Dir.exists?("./saved_games") && Dir.empty?("./saved_games") == false
   end
 
+  def help_info
+    puts "Welcome to command-line chess!\n"
+    puts "\nTake a look at the readme for detailed instructions on how to play:"
+    puts "https://github.com/ubercj/chess"
+    puts "\nEnter 'Q' any time you are making a move to Quit (and forfeit the game)."
+    puts "\nEnter 'S' any time you are making a move to Save your progress and quit."
+  end
+
   def load_prompt
-    puts "Would you like to load a saved game?"
+    puts "\nWould you like to load a saved game?"
     puts "Type Y for Yes, N for No"
     user_input = ""
     until user_input.match(/^[yn]$/)
